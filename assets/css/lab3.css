@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Lab 3: DOM Clobbering (Logic Collision) - CyberConnect HUD Styles
+   ========================================================================== */
+
+.markup-editor {
+  width: 100%;
+  background: #060B09;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--accent-mint);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 0.85rem;
+  resize: vertical;
+  min-height: 85px;
+  margin-bottom: 0.85rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.markup-editor:focus {
+  border-color: var(--accent-mint);
+  box-shadow: 0 0 14px var(--accent-mint-dim);
+}
+
+.admin-vault {
+  display: none;
+  background: #181124;
+  border: 1px solid var(--vuln-color);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.25s ease;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+}
+
+.admin-badge {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  background: #dc2626;
+  color: #fff;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.user-vault {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+
+.clobbered-inspect {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: #050908;
+  padding: 0.55rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-hairline);
+  margin-top: 0.65rem;
+  color: var(--text-body);
+  text-align: left;
+}

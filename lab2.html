@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 2: Open Redirect | CyberConnect Sandbox</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/lab2.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       HEADER / NAVIGATION BAR
+       ======================================================================== -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-star">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" fill="#4AFFC0"/></svg>
+        </div>
+        <span>CyberConnect <span class="mint-text" style="font-size: 0.8em; font-weight: 500;">/ Lab 02</span></span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="lab1.html" class="nav-link">Lab 1: Clickjacking</a></li>
+          <li><a href="lab2.html" class="nav-link active">Lab 2: Open Redirect</a></li>
+          <li><a href="lab3.html" class="nav-link">Lab 3: DOM Clobbering</a></li>
+          <li><a href="index.html#specs" class="nav-link">Architecture</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-socials">
+        <span id="lab-word-counter" class="word-counter-badge">Calculating words...</span>
+        <span class="badge-network">42 LAB</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN LAB WORKSPACE
+       ======================================================================== -->
+  <main class="lab-main-wrapper">
+
+    <!-- Page Hero -->
+    <section class="lab-hero">
+      <div class="lab-meta-tags">
+        <span class="tag-badge tag-owasp">OWASP A01:2021 — Broken Access Control</span>
+        <span class="tag-badge tag-cwe">CWE-601</span>
+        <span class="tag-badge tag-lab">Interactive Lab 02</span>
+      </div>
+      <h1 class="lab-title">Open URL <span class="mint-text">Redirection</span></h1>
+      <p class="lab-subtitle">
+        An unvalidated redirect parameter tricks users into trusting a link originating from a legitimate site that silently hands them over to an attacker.
+      </p>
+    </section>
+
+    <!-- Master Vulnerable / Fixed Toggle Switch -->
+    <section id="mode-toggle-wrapper" class="toggle-wrapper mode-vulnerable">
+      <div class="toggle-info">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Sandbox Defense Controller</span>
+        </h3>
+        <p id="mode-status-text"><span style="color: var(--vuln-color);">● Vulnerable Mode Active</span> — Unchecked target redirection</p>
+      </div>
+      <div class="toggle-btn-group">
+        <button id="toggle-btn-vuln" class="toggle-pill pill-vuln active" type="button">Vulnerable</button>
+        <button id="toggle-btn-fixed" class="toggle-pill pill-fixed" type="button">Fixed</button>
+      </div>
+    </section>
+
+    <!-- Two-Column Lab Grid -->
+    <div class="lab-grid-split">
+
+      <!-- LEFT COLUMN: 1. What it is, 2. The line, 4. Why it matters, 6. Sources -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- 1. What it is -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 01</span>
+              <h2 class="section-title-hud">What it is</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Open Redirection (<strong>OWASP A01:2021 &bull; CWE-601</strong>) occurs when an application accepts untrusted input via parameters like <code>?next=</code> and redirects visitors without destination validation. Phishing attacks exploit this because the initial link points to a trusted domain, deceiving victims and bypassing email security filters.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. The line -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 02</span>
+              <h2 class="section-title-hud">The line</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Vulnerable script extracting query parameter directly into location:
+              </p>
+
+              <!-- Vulnerable Code View -->
+              <div id="code-section-vuln" class="code-container">
+                <div class="code-header">
+                  <span>redirect-handler.js (Vulnerable)</span>
+                  <span class="code-badge-vuln">VULNERABLE</span>
+                </div>
+                <pre class="code-pre"><code><span class="code-line"><span class="line-num">1</span>function handleLoginSuccess() {</span>
+<span class="code-line"><span class="line-num">2</span>  const params = new URLSearchParams(window.location.search);</span>
+<span class="code-line"><span class="line-num">3</span>  const targetUrl = params.get("next");</span>
+<span class="code-line"><span class="line-num">4</span>  </span>
+<span class="code-line line-vuln"><span class="line-num">5</span>  if (targetUrl) {</span>
+<span class="code-line line-vuln"><span class="line-num">6</span>    window.location.href = targetUrl; // Blind redirection to attacker site</span>
+<span class="code-line"><span class="line-num">7</span>  } else {</span>
+<span class="code-line"><span class="line-num">8</span>    window.location.href = "/dashboard";</span>
+<span class="code-line"><span class="line-num">9</span>  }</span>
+<span class="code-line"><span class="line-num">10</span>}</span></code></pre>
+                <div class="code-explanation">
+                  <strong>Highlighted Lines 5–6:</strong> Forwards the browser to <code>targetUrl</code> without destination origin validation.
+                </div>
+              </div>
+
+              <!-- Fixed Hardened Code View -->
+              <div id="code-section-fixed" class="code-container" style="display: none;">
+                <div class="code-header">
+                  <span>redirect-handler.js (Hardened)</span>
+                  <span class="code-badge-fixed">ALLOW-LIST ENFORCED</span>
+                </div>
+                <pre class="code-pre"><code><span class="code-line"><span class="line-num">1</span>function isSafeRedirect(url) {</span>
+<span class="code-line line-fixed"><span class="line-num">2</span>  // Enforce relative paths only; reject absolute protocols and // bypasses</span>
+<span class="code-line line-fixed"><span class="line-num">3</span>  return /^\/(?!\/)[a-zA-Z0-9_\-\/]+$/.test(url);</span>
+<span class="code-line"><span class="line-num">4</span>}</span>
+<span class="code-line"><span class="line-num">5</span>function handleLoginSuccess() {</span>
+<span class="code-line"><span class="line-num">6</span>  const target = new URLSearchParams(window.location.search).get("next");</span>
+<span class="code-line line-fixed"><span class="line-num">7</span>  if (target && isSafeRedirect(target)) {</span>
+<span class="code-line"><span class="line-num">8</span>    window.location.href = target;</span>
+<span class="code-line"><span class="line-num">9</span>  } else {</span>
+<span class="code-line"><span class="line-num">10</span>    window.location.href = "/dashboard"; // Fallback to safe origin route</span>
+<span class="code-line"><span class="line-num">11</span>  }</span>
+<span class="code-line"><span class="line-num">12</span>}</span></code></pre>
+                <div class="code-explanation">
+                  <strong>Highlighted Lines 2–3 &amp; 7:</strong> Strict allow-list regex enforces single-slash relative paths, rejecting external targets.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- 4. Why it matters -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 04</span>
+              <h2 class="section-title-hud">Why it matters</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Open redirects turn reputable domains into attack vectors for credential theft. Users assume links on trusted domains are safe, landing on credential harvesting forms.
+              </p>
+              <p>
+                <strong>Real-World Incident:</strong> In 2021, cybercriminals exploited unvalidated redirects on American Express and Snapchat landing pages to orchestrate widespread Microsoft 365 credential harvesting attacks.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6. Sources -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 06</span>
+              <h2 class="section-title-hud">Sources</h2>
+            </div>
+            <div class="section-content">
+              <ul style="list-style-type: square; margin-left: 1.25rem; font-size: 0.88rem;">
+                <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP: Unvalidated Redirects Cheat Sheet</a></li>
+                <li><a href="https://portswigger.net/web-security/open-redirect" target="_blank" rel="noopener">PortSwigger: Open Redirection Vulnerabilities</a></li>
+                <li><a href="https://cwe.mitre.org/data/definitions/601.html" target="_blank" rel="noopener">MITRE: CWE-601 (URL Redirection to Untrusted Site)</a></li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- RIGHT COLUMN: 3. Try it & 5. The fix simulation -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 03 &amp; 05</span>
+              <h2 class="section-title-hud">Try it &amp; The Fix Playground</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Choose a redirect parameter payload to load into the simulated browser bar, then execute the redirection trigger to observe the outcome.
+              </p>
+
+              <!-- Payload Buttons -->
+              <div class="payload-controls">
+                <button class="btn-payload" type="button" onclick="loadRedirectPayload('phishing')">
+                  <span>🔴 Payload 1: External Phishing Domain</span>
+                </button>
+                <button class="btn-payload" type="button" onclick="loadRedirectPayload('protocol_relative')">
+                  <span>🔴 Payload 2: Protocol-Relative Bypass</span>
+                </button>
+                <button class="btn-payload" type="button" onclick="loadRedirectPayload('safe_internal')">
+                  <span>🟢 Payload 3: Safe Relative Path</span>
+                </button>
+              </div>
+
+              <!-- Simulated In-Page Mock Browser Window -->
+              <div class="mock-browser">
+                <div class="mock-browser-topbar">
+                  <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                  </div>
+                  <div class="mock-address-bar">
+                    <span style="color: #64748b;">🔒 https://</span>
+                    <span class="address-host" id="mockHost">trusted-portal.42amman.edu</span>
+                    <span id="mockPath">/auth/login?next=</span>
+                    <span class="address-param" id="mockParam">https://evil-phishing-bank.attacker/login</span>
+                  </div>
+                </div>
+
+                <div id="sim-stage" class="mock-viewport">
+                  <!-- Safe Portal View -->
+                  <div id="safePortalView" class="safe-screen">
+                    <div style="font-weight: 700; color: #4AFFC0; margin-bottom: 0.25rem; font-family: var(--font-heading);">
+                      Portal Authentication Successful
+                    </div>
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 1rem;">
+                      Session verified. Proceeding to destination specified by <code>?next=</code> parameter.
+                    </p>
+                    <button class="btn-mint-primary" type="button" style="padding: 10px 22px; font-size: 0.85rem;" onclick="executeRedirect()">
+                      Continue Navigation &rarr;
+                    </button>
+                  </div>
+
+                  <!-- Fake Phishing Landing (Shown on exploit) -->
+                  <div id="phishingScreen" class="phishing-screen">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🚨</div>
+                    <div style="font-weight: 800; color: #fca5a5; font-size: 1.05rem; font-family: var(--font-heading);">
+                      EXPLOIT: Attacker Phishing Page
+                    </div>
+                    <p style="font-size: 0.8rem; color: #fecaca; margin: 0.5rem 0;">
+                      User was silently redirected off the trusted domain to:
+                    </p>
+                    <div id="phishingDestText" style="font-family: var(--font-mono); font-size: 0.78rem; background: rgba(0,0,0,0.5); padding: 0.4rem; border-radius: 4px; word-break: break-all; color: #f87171;">
+                      https://evil-phishing-bank.attacker/login
+                    </div>
+                    <p style="font-size: 0.75rem; color: #fca5a5; margin-top: 0.5rem;">
+                      Credentials entered here would now be stolen.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Status Alert Banners -->
+              <div id="banner-vuln" class="status-banner banner-vuln">
+                <span style="font-size: 1.25rem;">⚠️</span>
+                <div>
+                  <strong>Redirection Hijacked!</strong> The application redirected to an untrusted external host without validation.
+                </div>
+              </div>
+
+              <div id="banner-fixed" class="status-banner banner-fixed">
+                <span style="font-size: 1.25rem;">🛡️</span>
+                <div>
+                  <strong>Redirection Blocked!</strong> Destination failed allow-list check. Safely defaulted to <code>/dashboard</code>.
+                </div>
+              </div>
+
+              <!-- Console Audit Log -->
+              <div class="console-log" id="console-log">
+                <div class="log-entry">
+                  <span class="log-time">[SYSTEM]</span>
+                  <span class="log-msg-info">[READY]</span>
+                  <span>Select a payload and test redirection behavior.</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="footer-cyber">
+    <div class="container-cyber">
+      <div class="footer-bottom-bar">
+        <a href="index.html" class="nav-brand">
+          <div class="brand-icon-star">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" fill="#4AFFC0"/></svg>
+          </div>
+          <span>CyberConnect Security Sandbox</span>
+        </a>
+        <p class="footer-copyright">
+          42 Amman / 42 Irbid &bull; Lab 02: Open Redirect &bull; Pure Client-Side HTML, CSS &amp; JavaScript.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/lab2.js"></script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 1: Clickjacking (UI Redressing) | CyberConnect Sandbox</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/lab1.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       HEADER / NAVIGATION BAR
+       ======================================================================== -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-star">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L12 0Z" fill="#4AFFC0"/></svg>
+        </div>
+        <span>CyberConnect <span class="mint-text" style="font-size: 0.8em; font-weight: 500;">/ Lab 01</span></span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="lab1.html" class="nav-link active">Lab 1: Clickjacking</a></li>
+          <li><a href="lab2.html" class="nav-link">Lab 2: Open Redirect</a></li>
+          <li><a href="lab3.html" class="nav-link">Lab 3: DOM Clobbering</a></li>
+          <li><a href="index.html#specs" class="nav-link">Architecture</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-socials">
+        <span id="lab-word-counter" class="word-counter-badge">Calculating words...</span>
+        <span class="badge-network">42 LAB</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN LAB WORKSPACE
+       ======================================================================== -->
+  <main class="lab-main-wrapper">
+
+    <!-- Page Hero -->
+    <section class="lab-hero">
+      <div class="lab-meta-tags">
+        <span class="tag-badge tag-owasp">OWASP A05:2021 — Security Misconfiguration</span>
+        <span class="tag-badge tag-cwe">CWE-1021</span>
+        <span class="tag-badge tag-lab">Interactive Lab 01</span>
+      </div>
+      <h1 class="lab-title">Clickjacking (<span class="mint-text">UI Redressing</span>)</h1>
+      <p class="lab-subtitle">
+        An attacker overlays an invisible, actionable interface over an authentic button to hijack user interactions without consent.
+      </p>
+    </section>
+
+    <!-- Master Vulnerable / Fixed Toggle Switch -->
+    <section id="mode-toggle-wrapper" class="toggle-wrapper mode-vulnerable">
+      <div class="toggle-info">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Sandbox Defense Controller</span>
+        </h3>
+        <p id="mode-status-text"><span style="color: var(--vuln-color);">● Vulnerable Mode Active</span> — Framing permitted, no UI protections</p>
+      </div>
+      <div class="toggle-btn-group">
+        <button id="toggle-btn-vuln" class="toggle-pill pill-vuln active" type="button">Vulnerable</button>
+        <button id="toggle-btn-fixed" class="toggle-pill pill-fixed" type="button">Fixed</button>
+      </div>
+    </section>
+
+    <!-- Two-Column Lab Grid -->
+    <div class="lab-grid-split">
+
+      <!-- LEFT COLUMN: What it is, The line, Why it matters, Sources -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- 1. What it is -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 01</span>
+              <h2 class="section-title-hud">What it is</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Clickjacking (<strong>OWASP A05:2021 &bull; CWE-1021</strong>) overlays an invisible, clickable layer over a visible button. Visitors think they are clicking a harmless prize, but their click triggers an underlying action. Missing framing headers allow malicious pages to frame the site.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. The line -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 02</span>
+              <h2 class="section-title-hud">The line</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Vulnerable action endpoint missing framing headers:
+              </p>
+
+              <!-- Vulnerable Code View -->
+              <div id="code-section-vuln" class="code-container">
+                <div class="code-header">
+                  <span>sensitive-action.html (Vulnerable)</span>
+                  <span class="code-badge-vuln">VULNERABLE</span>
+                </div>
+                <pre class="code-pre"><code><span class="code-line"><span class="line-num">1</span>&lt;!-- Missing X-Frame-Options or CSP frame-ancestors --&gt;</span>
+<span class="code-line"><span class="line-num">2</span>&lt;div class="action-card"&gt;</span>
+<span class="code-line"><span class="line-num">3</span>  &lt;h3&gt;One-Click Account Transfer&lt;/h3&gt;</span>
+<span class="code-line"><span class="line-num">4</span>  &lt;p&gt;Recipient: attacker@evil.test&lt;/p&gt;</span>
+<span class="code-line line-vuln"><span class="line-num">5</span>  &lt;button id="confirmBtn" onclick="executeTransfer()"&gt;Confirm Action&lt;/button&gt;</span>
+<span class="code-line"><span class="line-num">6</span>&lt;/div&gt;</span>
+<span class="code-line"><span class="line-num">7</span>&lt;script&gt;</span>
+<span class="code-line"><span class="line-num">8</span>  // Missing frame-busting check allows embedding</span>
+<span class="code-line"><span class="line-num">9</span>  function executeTransfer() { finalizeTransaction(500); }</span>
+<span class="code-line"><span class="line-num">10</span>&lt;/script&gt;</span></code></pre>
+                <div class="code-explanation">
+                  <strong>Highlighted Line 5:</strong> Triggers on clicks without validating if framed by an attacker.
+                </div>
+              </div>
+
+              <!-- Fixed Hardened Code View -->
+              <div id="code-section-fixed" class="code-container" style="display: none;">
+                <div class="code-header">
+                  <span>sensitive-action.html (Hardened)</span>
+                  <span class="code-badge-fixed">DEFENSE ENFORCED</span>
+                </div>
+                <pre class="code-pre"><code><span class="code-line"><span class="line-num">1</span>&lt;!-- Modern Server Defense: CSP frame-ancestors 'none' --&gt;</span>
+<span class="code-line"><span class="line-num">2</span>&lt;script&gt;</span>
+<span class="code-line line-fixed"><span class="line-num">3</span>  if (window.top !== window.self) {</span>
+<span class="code-line line-fixed"><span class="line-num">4</span>    window.top.location = window.self.location; // Frame-busting guard</span>
+<span class="code-line line-fixed"><span class="line-num">5</span>    document.body.style.display = "none";       // Deny rendering in frames</span>
+<span class="code-line"><span class="line-num">6</span>  }</span>
+<span class="code-line"><span class="line-num">7</span>  function executeTransfer() {</span>
+<span class="code-line"><span class="line-num">8</span>    if (window.top !== window.self) throw new Error("Framing prohibited");</span>
+<span class="code-line"><span class="line-num">9</span>    finalizeTransaction(500);</span>
+<span class="code-line"><span class="line-num">10</span>  }</span>
+<span class="code-line"><span class="line-num">11</span>&lt;/script&gt;</span></code></pre>
+                <div class="code-explanation">
+                  <strong>Highlighted Lines 3–5:</strong> Frame-buster confirms top-level context, denying nested iframe clicks.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- 4. Why it matters -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 04</span>
+              <h2 class="section-title-hud">Why it matters</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Clickjacking tricks authenticated visitors into unintended transfers, deletions, or permission grants without consent.
+              </p>
+              <p>
+                <strong>Real-World Incident:</strong> In 2009, Twitter's viral "Don't Click" worm used transparent button overlays to force users to unknowingly retweet the exploit upon clicking anywhere on the page.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6. Sources -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 06</span>
+              <h2 class="section-title-hud">Sources</h2>
+            </div>
+            <div class="section-content">
+              <ul style="list-style-type: square; margin-left: 1.25rem; font-size: 0.88rem;">
+                <li><a href="https://owasp.org/www-community/attacks/Clickjacking" target="_blank" rel="noopener">OWASP: Clickjacking UI Redressing Attack</a></li>
+                <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP: Clickjacking Defense Cheat Sheet</a></li>
+                <li><a href="https://cwe.mitre.org/data/definitions/1021.html" target="_blank" rel="noopener">MITRE: CWE-1021 (Improper Restriction of Rendered UI Layers)</a></li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- RIGHT COLUMN: 3. Try it & 5. The fix simulation -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 03 &amp; 05</span>
+              <h2 class="section-title-hud">Try it &amp; The Fix Playground</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Select an attacker payload to load the redressing overlay, then click the button inside the interactive canvas. Use the transparency slider to reveal how the attacker conceals the malicious button over the decoy prize!
+              </p>
+
+              <!-- Payload Selection Buttons -->
+              <div class="payload-controls">
+                <button class="btn-payload" type="button" onclick="loadPayload('transfer')">
+                  <span>🔴 Payload 1: Transfer $500</span>
+                </button>
+                <button class="btn-payload" type="button" onclick="loadPayload('delete')">
+                  <span>🔴 Payload 2: Delete Security Account</span>
+                </button>
+                <button class="btn-payload" type="button" onclick="loadPayload('subscribe')">
+                  <span>🔴 Payload 3: Authorize Premium Bill</span>
+                </button>
+              </div>
+
+              <!-- Transparency Slider -->
+              <div class="slider-control">
+                <label for="opacitySlider">Attacker Overlay Opacity: <strong id="opacityVal" class="mint-text">0% (Stealth)</strong></label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="0" oninput="updateOpacity(this.value)">
+              </div>
+
+              <!-- Simulation Stage -->
+              <div id="sim-stage" class="sim-stage">
+                
+                <!-- Decoy Layer (What the user thinks they see) -->
+                <div class="decoy-container">
+                  <div class="decoy-layer">
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #4AFFC0; font-family: var(--font-heading);">🎉 Congratulations!</div>
+                    <div style="font-size: 0.84rem; color: #cbd5e1; margin-top: 0.2rem;">You won the 42 Security Grand Prize!</div>
+                    <button class="decoy-btn" id="decoyBtn" type="button">Claim Free Prize Now</button>
+                  </div>
+
+                  <!-- Malicious Layer (Positioned directly over the decoy button) -->
+                  <div id="maliciousLayer" class="malicious-layer" style="opacity: 0;">
+                    <div style="font-size: 0.74rem; font-family: var(--font-mono); color: #fca5a5; font-weight: 700; margin-bottom: 0.2rem;">
+                      [ATTACKER IFRAME OVERLAY]
+                    </div>
+                    <button id="hiddenActionBtn" class="hidden-action-btn" type="button" onclick="triggerMaliciousAction()">
+                      Transfer $500 Now
+                    </button>
+                  </div>
+
+                  <!-- Hardened Blocked Shield (Visible when Fixed mode is active) -->
+                  <div id="blockedOverlay" class="blocked-overlay">
+                    <div class="blocked-badge">CSP: FRAME-ANCESTORS 'NONE'</div>
+                    <div style="font-weight: 700; color: #4AFFC0; font-size: 1.1rem; margin-bottom: 0.25rem;">
+                      Framing Blocked by Browser
+                    </div>
+                    <p style="font-size: 0.82rem; color: #94a3b8; max-width: 320px;">
+                      Frame-busting guard and CSP restriction prevented this resource from rendering inside an unauthorized iframe.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Status Alert Banners -->
+              <div id="banner-vuln" class="status-banner banner-vuln">
+                <span style="font-size: 1.25rem;">⚠️</span>
+                <div>
+                  <strong>Exploit Successful!</strong> The decoy click was hijacked by the invisible layer. Unauthorized action executed!
+                </div>
+              </div>
+
+              <div id="banner-fixed" class="status-banner banner-fixed">
+                <span style="font-size: 1.25rem;">🛡️</span>
+                <div>
+                  <strong>Payload Blocked!</strong> Frame protection prevented the overlay from rendering. Malicious interaction was neutralized.
+                </div>
+              </div>
+
+              <!-- Console Audit Log -->
+              <div class="console-log" id="console-log">
+                <div class="log-entry">
+                  <span class="log-time">[SYSTEM]</span>
+                  <span class="log-msg-info">[READY]</span>
+                  <span>Select a payload and click the button to test.</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="footer-cyber">
+    <div class="container-cyber">
+      <div class="footer-bottom-bar">
+        <a href="index.html" class="nav-brand">
+          <div class="brand-icon-star">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" fill="#4AFFC0"/></svg>
+          </div>
+          <span>CyberConnect Security Sandbox</span>
+        </a>
+        <p class="footer-copyright">
+          42 Amman / 42 Irbid &bull; Lab 01: Clickjacking &bull; Pure Client-Side HTML, CSS &amp; JavaScript.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/lab1.js"></script>
+</body>
+</html>

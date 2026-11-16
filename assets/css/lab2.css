@@ -1,0 +1,95 @@
+/* ==========================================================================
+   Lab 2: Open URL Redirection - CyberConnect HUD Styles
+   ========================================================================== */
+
+.mock-browser {
+  width: 100%;
+  border: 1px solid var(--border-hairline);
+  clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px);
+  background: #0B1311;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+
+.mock-browser-topbar {
+  background: #0F1D19;
+  padding: 0.65rem 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.browser-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.browser-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-red { background: #ef4444; }
+.dot-yellow { background: #f59e0b; }
+.dot-green { background: #4AFFC0; }
+
+.mock-address-bar {
+  flex: 1;
+  background: #060B09;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-body);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.address-host {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.address-param {
+  color: #fca5a5;
+}
+
+.mock-viewport {
+  min-height: 200px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.phishing-screen {
+  display: none;
+  background: rgba(69, 10, 10, 0.7);
+  border: 1px solid #ef4444;
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.25s ease;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
+}
+
+.safe-screen {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}

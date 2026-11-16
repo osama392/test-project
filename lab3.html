@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 3: DOM Clobbering | CyberConnect Sandbox</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/lab3.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       HEADER / NAVIGATION BAR
+       ======================================================================== -->
+  <header class="header-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-star">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L12 0Z" fill="#4AFFC0"/></svg>
+        </div>
+        <span>CyberConnect <span class="mint-text" style="font-size: 0.8em; font-weight: 500;">/ Lab 03</span></span>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="lab1.html" class="nav-link">Lab 1: Clickjacking</a></li>
+          <li><a href="lab2.html" class="nav-link">Lab 2: Open Redirect</a></li>
+          <li><a href="lab3.html" class="nav-link active">Lab 3: DOM Clobbering</a></li>
+          <li><a href="index.html#specs" class="nav-link">Architecture</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-socials">
+        <span id="lab-word-counter" class="word-counter-badge">Calculating words...</span>
+        <span class="badge-network">42 LAB</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN LAB WORKSPACE
+       ======================================================================== -->
+  <main class="lab-main-wrapper">
+
+    <!-- Page Hero -->
+    <section class="lab-hero">
+      <div class="lab-meta-tags">
+        <span class="tag-badge tag-owasp">Challenge Lab — Logic Corruption</span>
+        <span class="tag-badge tag-cwe">OWASP DOM Clobbering</span>
+        <span class="tag-badge tag-lab">Interactive Lab 03</span>
+      </div>
+      <h1 class="lab-title">DOM Clobbering (<span class="mint-text">Logic Collision</span>)</h1>
+      <p class="lab-subtitle">
+        Script-free, benign HTML elements clobber global JavaScript namespaces, corrupting application logic to unlock unauthorized functionality.
+      </p>
+    </section>
+
+    <!-- Master Vulnerable / Fixed Toggle Switch -->
+    <section id="mode-toggle-wrapper" class="toggle-wrapper mode-vulnerable">
+      <div class="toggle-info">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Sandbox Defense Controller</span>
+        </h3>
+        <p id="mode-status-text"><span style="color: var(--vuln-color);">● Vulnerable Mode Active</span> — Unchecked global property trust</p>
+      </div>
+      <div class="toggle-btn-group">
+        <button id="toggle-btn-vuln" class="toggle-pill pill-vuln active" type="button">Vulnerable</button>
+        <button id="toggle-btn-fixed" class="toggle-pill pill-fixed" type="button">Fixed</button>
+      </div>
+    </section>
+
+    <!-- Two-Column Lab Grid -->
+    <div class="lab-grid-split">
+
+      <!-- LEFT COLUMN: 1. What it is, 2. The line, 4. Why it matters, 6. Sources -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- 1. What it is -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 01</span>
+              <h2 class="section-title-hud">What it is</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                DOM Clobbering is a naming collision vulnerability where benign HTML elements (such as forms or anchors with specific <code>id</code> and <code>name</code> attributes) create unexpected window-scoped objects. When scripts expect an uninitialized variable to be undefined or boolean, the clobbered DOM element overrides it, corrupting conditional checks without executing scripts.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2. The line -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 02</span>
+              <h2 class="section-title-hud">The line</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Vulnerable script trusting global object presence:
+              </p>
+
+              <!-- Vulnerable Code View -->
+              <div id="code-section-vuln" class="code-container">
+                <div class="code-header">
+                  <span>role-manager.js (Vulnerable)</span>
+                  <span class="code-badge-vuln">VULNERABLE</span>
+                </div>
+                <pre class="code-pre"><code><span class="code-line"><span class="line-num">1</span>function renderControlCenter() {</span>
+<span class="code-line"><span class="line-num">2</span>  // Injected HTML can inject window.systemConfig</span>
+<span class="code-line"><span class="line-num">3</span>  const config = window.systemConfig;</span>
+<span class="code-line"><span class="line-num">4</span>  </span>
+<span class="code-line line-vuln"><span class="line-num">5</span>  if (config && config.isAdmin) {</span>
+<span class="code-line line-vuln"><span class="line-num">6</span>    showRestrictedAdminPanel(); // DOM element evaluates truthy</span>
+<span class="code-line"><span class="line-num">7</span>  } else {</span>
+<span class="code-line"><span class="line-num">8</span>    showStandardUserProfile();</span>
+<span class="code-line"><span class="line-num">9</span>  }</span>
+<span class="code-line"><span class="line-num">10</span>}</span></code></pre>
+                <div class="code-explanation">
+                  <strong>Highlighted Lines 5–6:</strong> Loose truthiness check treats an injected <code>HTMLInputElement</code> object as authorized admin access.
+                </div>
+              </div>
+
+              <!-- Fixed Hardened Code View -->
+              <div id="code-section-fixed" class="code-container" style="display: none;">
+                <div class="code-header">
+                  <span>role-manager.js (Hardened)</span>
+                  <span class="code-badge-fixed">STRICT TYPE CHECK ENFORCED</span>
+                </div>
+                <pre class="code-pre"><code><span class="code-line"><span class="line-num">1</span>const SAFE_STATE = Object.freeze({ isAdmin: false });</span>
+<span class="code-line"><span class="line-num">2</span>function isLegitimateBoolean(val) {</span>
+<span class="code-line line-fixed"><span class="line-num">3</span>  // Deny values that are HTMLElement or not primitive booleans</span>
+<span class="code-line line-fixed"><span class="line-num">4</span>  return typeof val === "boolean" && !(val instanceof HTMLElement);</span>
+<span class="code-line"><span class="line-num">5</span>}</span>
+<span class="code-line"><span class="line-num">6</span>function renderControlCenter() {</span>
+<span class="code-line line-fixed"><span class="line-num">7</span>  if (isLegitimateBoolean(SAFE_STATE.isAdmin) && SAFE_STATE.isAdmin === true) {</span>
+<span class="code-line"><span class="line-num">8</span>    showRestrictedAdminPanel();</span>
+<span class="code-line"><span class="line-num">9</span>  } else {</span>
+<span class="code-line"><span class="line-num">10</span>    showStandardUserProfile(); // Clobbered elements fail boolean check</span>
+<span class="code-line"><span class="line-num">11</span>  }</span>
+<span class="code-line"><span class="line-num">12</span>}</span></code></pre>
+                <div class="code-explanation">
+                  <strong>Highlighted Lines 3–4 &amp; 7:</strong> Primitive type-checking ensures DOM nodes cannot satisfy logic conditions.
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- 4. Why it matters -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 04</span>
+              <h2 class="section-title-hud">Why it matters</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                DOM Clobbering slips past sanitizers that only strip script tags. By collision with global identifiers, attackers disable defenses, manipulate routing, or unlock hidden admin features.
+              </p>
+              <p>
+                <strong>Real-World Incident:</strong> In Google Gmail, researchers bypassed HTML sanitization via DOM clobbering by naming form elements to overwrite core prototype methods, forcing an unsafe execution path.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6. Sources -->
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 06</span>
+              <h2 class="section-title-hud">Sources</h2>
+            </div>
+            <div class="section-content">
+              <ul style="list-style-type: square; margin-left: 1.25rem; font-size: 0.88rem;">
+                <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/DOM_Clobbering_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP: DOM Clobbering Prevention Cheat Sheet</a></li>
+                <li><a href="https://portswigger.net/web-security/dom-based/dom-clobbering" target="_blank" rel="noopener">PortSwigger: DOM Clobbering Guide</a></li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- RIGHT COLUMN: 3. Try it & 5. The fix simulation -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <article class="chamfer-card">
+          <div class="chamfer-card-inner">
+            <div class="section-header-hud">
+              <span class="section-badge-hud">SECTION 03 &amp; 05</span>
+              <h2 class="section-title-hud">Try it &amp; The Fix Playground</h2>
+            </div>
+            <div class="section-content">
+              <p>
+                Insert sanitized HTML markup into the user comment input. Click a payload button or enter custom markup, then test how the script resolves the global reference.
+              </p>
+
+              <!-- Payload Presets -->
+              <div class="payload-controls">
+                <button class="btn-payload" type="button" onclick="loadClobberPayload('form')">
+                  <span>🔴 Payload 1: Form &amp; Named Input</span>
+                </button>
+                <button class="btn-payload" type="button" onclick="loadClobberPayload('anchor')">
+                  <span>🔴 Payload 2: Anchor Attribute Collision</span>
+                </button>
+                <button class="btn-payload" type="button" onclick="loadClobberPayload('benign')">
+                  <span>🟢 Payload 3: Clean Comment</span>
+                </button>
+              </div>
+
+              <!-- Markup Input Box -->
+              <label for="markupInput" style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 0.35rem; font-family: var(--font-mono);">
+                Sanitized HTML Markup Container:
+              </label>
+              <textarea id="markupInput" class="markup-editor">&lt;form id="systemConfig"&gt;&lt;input name="isAdmin" value="true"&gt;&lt;/form&gt;</textarea>
+
+              <button class="btn-mint-primary" type="button" style="width: 100%; margin-bottom: 1.25rem; padding: 12px;" onclick="processMarkup()">
+                <span>Inject Markup &amp; Evaluate Logic</span>
+                <span>&rarr;</span>
+              </button>
+
+              <!-- Hidden Sandbox DOM Sink -->
+              <div id="clobberSink" style="display: none;"></div>
+
+              <!-- Simulation Stage -->
+              <div id="sim-stage" class="sim-stage">
+                
+                <!-- Standard User View -->
+                <div id="userVaultView" class="user-vault">
+                  <div style="font-weight: 700; color: #94a3b8; font-size: 1rem; margin-bottom: 0.25rem; font-family: var(--font-heading);">
+                    Standard Visitor View
+                  </div>
+                  <p style="font-size: 0.82rem; color: #64748b;">
+                    Privileged features are locked. <code>systemConfig.isAdmin</code> is unresolved.
+                  </p>
+                  <div class="clobbered-inspect" id="variableInspection">
+                    window.systemConfig: undefined
+                  </div>
+                </div>
+
+                <!-- Clobbered Privileged Admin Panel (Unlocked when exploited) -->
+                <div id="adminVaultView" class="admin-vault">
+                  <span class="admin-badge">PRIVILEGE ESCALATION</span>
+                  <div style="font-weight: 800; color: #f87171; font-size: 1.15rem; margin-bottom: 0.25rem; font-family: var(--font-heading);">
+                    Restricted Admin Control Panel
+                  </div>
+                  <p style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.75rem;">
+                    Logic corrupted via DOM collision! The script evaluated an <code>HTMLInputElement</code> as boolean true.
+                  </p>
+                  <div class="clobbered-inspect" id="clobberedStateText">
+                    [CLOBBERED] window.systemConfig.isAdmin -&gt; [object HTMLInputElement]
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Status Alert Banners -->
+              <div id="banner-vuln" class="status-banner banner-vuln">
+                <span style="font-size: 1.25rem;">⚠️</span>
+                <div>
+                  <strong>DOM Clobbering Exploited!</strong> An HTML element hijacked the global namespace, corrupting application logic.
+                </div>
+              </div>
+
+              <div id="banner-fixed" class="status-banner banner-fixed">
+                <span style="font-size: 1.25rem;">🛡️</span>
+                <div>
+                  <strong>Attack Blocked!</strong> Strict type check detected an HTMLElement instead of a boolean. Admin panel remains secured.
+                </div>
+              </div>
+
+              <!-- Console Audit Log -->
+              <div class="console-log" id="console-log">
+                <div class="log-entry">
+                  <span class="log-time">[SYSTEM]</span>
+                  <span class="log-msg-info">[READY]</span>
+                  <span>Select a payload and test DOM namespace resolution.</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="footer-cyber">
+    <div class="container-cyber">
+      <div class="footer-bottom-bar">
+        <a href="index.html" class="nav-brand">
+          <div class="brand-icon-star">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" fill="#4AFFC0"/></svg>
+          </div>
+          <span>CyberConnect Security Sandbox</span>
+        </a>
+        <p class="footer-copyright">
+          42 Amman / 42 Irbid &bull; Lab 03: DOM Clobbering &bull; Pure Client-Side HTML, CSS &amp; JavaScript.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/lab3.js"></script>
+</body>
+</html>
