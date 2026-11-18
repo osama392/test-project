@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ==========================================================================
    Lab 1: Clickjacking (UI Redressing) - CyberConnect HUD Styles
    ========================================================================== */
@@ -22,10 +23,71 @@
 .decoy-layer {
   position: absolute;
   inset: 0;
+=======
+/* ============================================================
+   Lab 1 — Clickjacking  — Lab-specific styles
+   ============================================================ */
+
+/* Clickjacking demo area */
+.cj-demo {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* The "real" target page */
+.cj-target {
+  background: #111827;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  transition: all 0.4s ease;
+}
+
+.cj-target h4 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.cj-target p {
+  font-size: 0.85rem;
+  margin: 0 auto 20px;
+}
+
+.cj-target .cj-action-btn {
+  padding: 12px 28px;
+  background: var(--grad-danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: 'Inter', sans-serif;
+}
+
+.cj-target .cj-action-btn:hover {
+  box-shadow: var(--glow-red);
+}
+
+/* The "bait" overlay */
+.cj-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+>>>>>>> 3861762 (ahmad commit)
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   padding: 1.5rem;
   text-align: center;
   z-index: 1;
@@ -89,10 +151,63 @@
   inset: 0;
   background: rgba(10, 15, 13, 0.95);
   z-index: 10;
+=======
+  background: linear-gradient(135deg, #1a1a3e, #0d1525);
+  border: 2px solid var(--cyan);
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  transition: pointer-events 0.3s ease;
+  padding: 32px;
+  text-align: center;
+}
+
+.cj-overlay.active {
+  opacity: 0.97;
+  pointer-events: auto;
+}
+
+.cj-overlay h3 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  color: var(--yellow);
+}
+
+.cj-overlay p {
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.cj-overlay .cj-bait-btn {
+  padding: 14px 36px;
+  background: var(--grad-green);
+  color: #060b18;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  animation: pulseGlow 2s infinite;
+  font-family: 'Inter', sans-serif;
+  transition: all var(--transition);
+}
+
+.cj-overlay .cj-bait-btn:hover {
+  transform: scale(1.03);
+}
+
+/* Reveal animation */
+.cj-reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+>>>>>>> 3861762 (ahmad commit)
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   padding: 1.5rem;
   text-align: center;
   backdrop-filter: blur(8px);
@@ -133,4 +248,100 @@
   flex: 1;
   cursor: pointer;
   accent-color: var(--accent-mint);
+=======
+  background: rgba(6, 11, 24, 0.95);
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+}
+
+.cj-reveal.active {
+  display: flex;
+  animation: slideUp 0.4s ease;
+}
+
+.cj-reveal .reveal-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.cj-reveal h4 {
+  color: var(--red);
+  margin-bottom: 8px;
+}
+
+.cj-reveal p {
+  margin: 0 auto;
+  font-size: 0.88rem;
+}
+
+/* Fixed mode blocked state */
+.cj-blocked {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+}
+
+.cj-blocked.active {
+  display: flex;
+  animation: slideUp 0.4s ease;
+}
+
+.cj-blocked .shield-icon {
+  font-size: 3rem;
+  color: var(--green);
+}
+
+.cj-blocked h4 {
+  color: var(--green);
+}
+
+.cj-blocked p {
+  font-size: 0.88rem;
+  margin: 0 auto;
+}
+
+/* Transparency slider */
+.opacity-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.opacity-control input[type="range"] {
+  flex: 1;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+/* CSP header simulation */
+.header-sim {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+}
+
+.header-sim .header-key {
+  color: var(--cyan);
+}
+
+.header-sim .header-val {
+  color: var(--green);
+>>>>>>> 3861762 (ahmad commit)
 }

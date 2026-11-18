@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
   <title>CyberConnect Web Security Sandbox | 42 Amman & Irbid</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -756,6 +757,377 @@
           &copy; 2026 CyberConnect Web Security Sandbox &bull; 42 Amman / 42 Irbid &bull; Pure Client-Side HTML, CSS &amp; JavaScript.
         </p>
       </div>
+=======
+  <title>SecLabs — Interactive Web Security Labs</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    /* ---- Hero ---- */
+    .hero {
+      padding: 120px 0 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(0,240,255,0.06) 0%, rgba(0,255,136,0.02) 40%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      margin-bottom: 24px;
+      font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .hero h1 .highlight {
+      background: var(--grad-cyan);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero__sub {
+      max-width: 560px;
+      margin: 0 auto 40px;
+      font-size: 1.08rem;
+      line-height: 1.75;
+      color: var(--text-muted);
+    }
+    .hero__actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* ---- Lab Cards ---- */
+    .labs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .lab-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .lab-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .lab-card:nth-child(1)::before { background: linear-gradient(90deg, #ff4466, #ff6688); }
+    .lab-card:nth-child(2)::before { background: linear-gradient(90deg, #ffaa00, #ffc944); }
+    .lab-card:nth-child(3)::before { background: linear-gradient(90deg, #a855f7, #c084fc); }
+    .lab-card:hover {
+      border-color: var(--cyan-dim);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-4px);
+    }
+    .lab-card:hover::before {
+      opacity: 1;
+    }
+    .lab-card__icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+    .lab-card__icon--cj  { background: rgba(255,68,102,0.12); border: 1px solid rgba(255,68,102,0.25); }
+    .lab-card__icon--or  { background: rgba(255,170,0,0.12); border: 1px solid rgba(255,170,0,0.25); }
+    .lab-card__icon--dc  { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.25); }
+
+    .lab-card__num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .lab-card h3 {
+      margin-bottom: 8px;
+      font-size: 1.2rem;
+    }
+    .lab-card__meta {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .lab-card p {
+      font-size: 0.92rem;
+      flex: 1;
+      margin-bottom: 24px;
+    }
+    .lab-card__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cyan);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: gap var(--transition), color var(--transition);
+      margin-top: auto;
+    }
+    .lab-card__link:hover {
+      gap: 12px;
+      color: var(--green);
+    }
+
+    /* ---- Section Titles ---- */
+    .section-title {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .section-subtitle {
+      text-align: center;
+      font-size: 1.05rem;
+      margin: 0 auto;
+    }
+
+    /* ---- How It Works ---- */
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .how-step {
+      text-align: center;
+      padding: 28px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: relative;
+    }
+    .how-step__num {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      opacity: 0.5;
+    }
+    .how-step__icon {
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+    .how-step h4 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .how-step p {
+      font-size: 0.85rem;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ---- Disclaimer ---- */
+    .disclaimer {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 24px 32px;
+      background: rgba(0, 240, 255, 0.04);
+      border: 1px solid rgba(0, 240, 255, 0.12);
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      .labs-grid { grid-template-columns: 1fr; }
+      .how-grid  { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .how-grid { grid-template-columns: 1fr; }
+      .hero { padding: 80px 0 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAV ==================== -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo"></a>
+      <ul class="nav__links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="lab1.html">Clickjacking</a></li>
+        <li><a href="lab2.html">Open Redirect</a></li>
+        <li><a href="lab3.html">DOM Clobbering</a></li>
+      </ul>
+      <button class="nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ==================== HERO ==================== -->
+    <section class="hero container">
+      <h1>Understand Web Vulnerabilities<br>by <span class="highlight">Exploiting Them</span></h1>
+      <p class="hero__sub">
+        Three hands-on labs. Each one walks you through a real client-side
+        vulnerability, lets you fire the payload, and then shows the fix
+        that stops it — all inside the browser.
+      </p>
+      <div class="hero__actions">
+        <a href="lab1.html" class="btn btn--primary">Start First Lab →</a>
+        <a href="#labs" class="btn btn--secondary">View All Labs</a>
+      </div>
+    </section>
+
+    <!-- ==================== LABS ==================== -->
+    <section id="labs" class="section container">
+      <h2 class="section-title animate-in">The Labs</h2>
+      <p class="section-subtitle animate-in">
+        Each lab explains the vulnerability, lets you try it, and shows the fix that blocks it.
+      </p>
+
+      <div class="labs-grid">
+        <!-- Lab 1 -->
+        <div class="lab-card animate-in">
+          <div class="lab-card__icon lab-card__icon--cj">🖱️</div>
+          <div class="lab-card__num">Lab 01</div>
+          <h3>Clickjacking</h3>
+          <div class="lab-card__meta">
+            <span class="badge badge--red">CWE-1021</span>
+            <span class="badge badge--orange">OWASP A05</span>
+          </div>
+          <p>
+            An invisible iframe tricks users into clicking
+            hidden buttons. Overlays hijack your actions.
+            Frame-busting headers stop them.
+          </p>
+          <a href="lab1.html" class="lab-card__link">
+            Launch Lab <span>→</span>
+          </a>
+        </div>
+
+        <!-- Lab 2 -->
+        <div class="lab-card animate-in">
+          <div class="lab-card__icon lab-card__icon--or">🔀</div>
+          <div class="lab-card__num">Lab 02</div>
+          <h3>Open Redirect</h3>
+          <div class="lab-card__meta">
+            <span class="badge badge--red">CWE-601</span>
+            <span class="badge badge--orange">OWASP A01</span>
+          </div>
+          <p>
+            A trusted URL quietly sends users to a phishing page.
+            Unvalidated redirect parameters get weaponized.
+            Domain whitelisting shuts it down.
+          </p>
+          <a href="lab2.html" class="lab-card__link">
+            Launch Lab <span>→</span>
+          </a>
+        </div>
+
+        <!-- Lab 3 -->
+        <div class="lab-card animate-in">
+          <div class="lab-card__icon lab-card__icon--dc">🧬</div>
+          <div class="lab-card__num">Lab 03</div>
+          <h3>DOM Clobbering</h3>
+          <div class="lab-card__meta">
+            <span class="badge badge--red">CWE-79</span>
+            <span class="badge badge--orange">OWASP A03</span>
+          </div>
+          <p>
+            Injected HTML elements shadow JavaScript globals
+            and hijack application logic — without a single
+            script tag. Proper scoping blocks it.
+          </p>
+          <a href="lab3.html" class="lab-card__link">
+            Launch Lab <span>→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== HOW IT WORKS ==================== -->
+    <section class="section container">
+      <h2 class="section-title animate-in">How Each Lab Works</h2>
+      <p class="section-subtitle animate-in">
+        Every lab follows the same four-step flow
+      </p>
+
+      <div class="how-grid">
+        <div class="how-step animate-in">
+          <span class="how-step__num">01</span>
+          <div class="how-step__icon">📖</div>
+          <h4>Understand</h4>
+          <p>Plain-English explanation of the vulnerability with OWASP and CWE references.</p>
+        </div>
+        <div class="how-step animate-in">
+          <span class="how-step__num">02</span>
+          <div class="how-step__icon">👀</div>
+          <h4>See the Code</h4>
+          <p>Realistic vulnerable code with the dangerous line highlighted and explained.</p>
+        </div>
+        <div class="how-step animate-in">
+          <span class="how-step__num">03</span>
+          <div class="how-step__icon">💥</div>
+          <h4>Fire the Payload</h4>
+          <p>Press a payload button and watch the vulnerability trigger inside a live sandbox.</p>
+        </div>
+        <div class="how-step animate-in">
+          <span class="how-step__num">04</span>
+          <div class="how-step__icon">🛡️</div>
+          <h4>Apply the Fix</h4>
+          <p>Switch to fixed mode — the same payload fails. See which line of code stops it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DISCLAIMER ==================== -->
+    <section class="section container">
+      <div class="disclaimer animate-in">
+        All demonstrations on this site are client-side simulations.
+        No real systems are targeted, no real credentials are used,
+        and no malicious code is executed.
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+      <ul class="footer__links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="lab1.html">Clickjacking</a></li>
+        <li><a href="lab2.html">Open Redirect</a></li>
+        <li><a href="lab3.html">DOM Clobbering</a></li>
+      </ul>
+      <p>SecLabs — Educational web security labs. All attacks are simulated.</p>
+>>>>>>> 3861762 (ahmad commit)
     </div>
   </footer>
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ==========================================================================
    Lab 3: DOM Clobbering (Logic Collision) - CyberConnect HUD Styles
    ========================================================================== */
@@ -69,4 +70,223 @@
   margin-top: 0.65rem;
   color: var(--text-body);
   text-align: left;
+=======
+/* ============================================================
+   Lab 3 — DOM Clobbering — Lab-specific styles
+   ============================================================ */
+
+/* DOM state viewer */
+.dom-viewer {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-code);
+}
+
+.dom-viewer__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.dom-viewer__header .tab {
+  padding: 4px 12px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.dom-viewer__header .tab.active {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--cyan);
+}
+
+.dom-viewer__body {
+  padding: 24px;
+  min-height: 240px;
+}
+
+/* HTML injection input */
+.inject-area {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.inject-area label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.inject-area textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  resize: vertical;
+  transition: border-color var(--transition);
+}
+
+.inject-area textarea:focus {
+  outline: none;
+  border-color: var(--cyan);
+}
+
+/* Variable state display */
+.var-state {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.var-state__box {
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.3);
+}
+
+.var-state__box h5 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.var-state__box--before h5 {
+  color: var(--cyan);
+}
+
+.var-state__box--after h5 {
+  color: var(--red);
+}
+
+.var-state__box--safe h5 {
+  color: var(--green);
+}
+
+.var-state__value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  word-break: break-all;
+  padding: 8px;
+  background: var(--bg-code);
+  border-radius: 4px;
+}
+
+/* Injected HTML preview */
+.injected-preview {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.injected-preview__label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: var(--bg-code);
+  padding: 0 8px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+/* DOM tree visualization */
+.dom-tree {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  padding: 12px;
+}
+
+.dom-tree .node {
+  padding-left: 20px;
+  position: relative;
+}
+
+.dom-tree .node::before {
+  content: '├─ ';
+  color: var(--text-dim);
+}
+
+.dom-tree .node:last-child::before {
+  content: '└─ ';
+}
+
+.dom-tree .clobbered {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.dom-tree .safe {
+  color: var(--green);
+}
+
+/* Comparison panel */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.comparison__panel {
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.comparison__panel--vuln {
+  border-color: rgba(255, 68, 102, 0.3);
+  background: rgba(255, 68, 102, 0.04);
+}
+
+.comparison__panel--safe {
+  border-color: rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 136, 0.04);
+}
+
+.comparison__panel h5 {
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 600px) {
+  .var-state {
+    grid-template-columns: 1fr;
+  }
+  .comparison {
+    grid-template-columns: 1fr;
+  }
+>>>>>>> 3861762 (ahmad commit)
 }

